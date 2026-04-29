@@ -27,7 +27,7 @@ resources:
 # Terraform.
 #########################
 stages:
-  - template: terraform/jobs/tf-plan.yml@templates
+  - template: terraform/steps/tf-plan.yml@templates
     parameters:
           environment: dev
           location: uks
@@ -41,7 +41,7 @@ stages:
             
 
   - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
-        - template: terraform/jobs/tf-apply.yml@templates
+        - template: terraform/steps/tf-apply.yml@templates
           parameters:
             environment: dev
             location: uks
