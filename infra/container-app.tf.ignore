@@ -1,0 +1,14 @@
+resource "azurerm_container_app" "smart_assign_api" {
+  name                         = "smart-assign-backend-api"
+  container_app_environment_id = "/subscriptions/4ac7e4ba-2b33-4c38-8852-1a6ba4098aa3/resourceGroups/alana-barrett-frew-sandbox-rg/providers/Microsoft.App/managedEnvironments/smart-assign-env"
+  resource_group_name          = "alana-barrett-frew-sandbox-rg"
+  revision_mode                = "Single"
+
+  template {
+    registry {
+      server   = "smartassignregistry.azurecr.io"
+      identity = "/subscriptions/4ac7e4ba-2b33-4c38-8852-1a6ba4098aa3/resourceGroups/alana-barrett-frew-sandbox-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/smart-assign-ami"
+    }
+    
+  }
+}
