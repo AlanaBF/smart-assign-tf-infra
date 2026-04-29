@@ -46,6 +46,7 @@ stages:
         saContainerName: tfstate
         tfVersion: "1.8.5"
         planFileName: "tfplan"
+        statefilename: smart-assign.tfstate
 
     - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
       - template: terraform/steps/tf-apply.yml@templates
@@ -58,6 +59,7 @@ stages:
           saName: smartassignstoragetf
           saContainerName: tfstate
           tfVersion: "1.8.5"
+          statefilename: smart-assign.tfstate          
 
 
       
