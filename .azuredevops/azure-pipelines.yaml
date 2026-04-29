@@ -27,28 +27,27 @@ resources:
 # Terraform.
 #########################
 stages:
-  - template: terraform/steps/tf-plan.yml@templates
+  - template: terraform/jobs/tf-plan.yml@templates
     parameters:
           environment: dev
-          location: uks
+          rgLocation: uks
           workingDirectory: $(tfWorkingDir)
           serviceConnection: $(serviceConnection)
-          tfStateServiceConnection: $(serviceConnection)
-          tfStateLocation: uks
-          tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
-          tfStateStorageAccountName: smartassignstoragetf ## create storage ac
-          tfStateContainerName: tfstate     ## create storage ac container 
-            
+          rgName: alana-barrett-frew-sandbox-rg
+          saName: smartassignstoragetf
+          saContainerName: tfstate
+          tfVersion: "1.8.5"
+          planFileName: "tfplan"                    
 
   - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
-        - template: terraform/steps/tf-apply.yml@templates
-          parameters:
-            environment: dev
-            location: uks
-            workingDirectory: $(tfWorkingDir)
-            serviceConnection: $(serviceConnection)
-            tfStateServiceConnection: $(serviceConnection)
-            tfStateLocation: uks
-            tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
-            tfStateStorageAccountName: smartassignstoragetf ## create storage ac
-            tfStateContainerName: tfstate     ## create storage ac container                
+    - template: terraform/jobs/tf-apply.yml@templates
+      parameters:
+          environment: dev
+          rgLocation: uks
+          workingDirectory: $(tfWorkingDir)
+          serviceConnection: $(serviceConnection)
+          rgName: alana-barrett-frew-sandbox-rg
+          saName: smartassignstoragetf
+          saContainerName: tfstate
+          tfVersion: "1.8.5"
+      
