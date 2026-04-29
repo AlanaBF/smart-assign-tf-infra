@@ -14,17 +14,20 @@ variables:
     value: UKDDC_Azure_Subscription
 
 #########################
+# Resources.
+#########################
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: 'Azure Capability Deployment Tools/ado-yaml-templates'
+      ref: main    
+
+#########################
 # Terraform.
 #########################
 stages:
-  - ${{ if contains(variables['Build.SourceBranch'], 'refs/pull' ) }}:
-    - template: ../templates/terraform/stages/terraform-ci.yaml
-      parameters:
-        workingDirectory: $(tfWorkingDir)
-        runCheckov: true
-
-
-  - template: ../templates/terraform/stages/terraform-plan.yaml
+  - template: terraform/jobs/tf-plan.yml@templates
     parameters:
           environment: dev
           location: uks
@@ -38,7 +41,7 @@ stages:
             
 
   - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
-        - template: ../templates/terraform/stages/terraform-apply.yaml
+        - template: terraform/jobs/tf-apply.yml@templates
           parameters:
             environment: dev
             location: uks
