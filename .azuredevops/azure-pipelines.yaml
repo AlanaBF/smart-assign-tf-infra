@@ -1,0 +1,51 @@
+#########################
+# Triggers.
+#########################
+trigger:
+  - main
+
+#########################
+# Variables.
+#########################
+variables:
+  - name: tfWorkingDir
+    value: infra
+  - name: serviceConnection
+    value: UKDDC_Azure_Subscription
+
+#########################
+# Terraform.
+#########################
+stages:
+  - ${{ if contains(variables['Build.SourceBranch'], 'refs/pull' ) }}:
+    - template: ../templates/terraform/stages/terraform-ci.yaml
+      parameters:
+        workingDirectory: $(tfWorkingDir)
+        runCheckov: true
+
+
+  - template: ../templates/terraform/stages/terraform-plan.yaml
+    parameters:
+          environment: dev
+          location: uks
+          workingDirectory: $(tfWorkingDir)
+          serviceConnection: $(serviceConnection)
+          tfStateServiceConnection: $(serviceConnection)
+          tfStateLocation: uks
+          tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
+          tfStateStorageAccountName: ## create storage ac
+          tfStateContainerName: tfstate     ## create storage ac container 
+            
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
+        - template: ../templates/terraform/stages/terraform-apply.yaml
+          parameters:
+            environment: dev
+            location: uks
+            workingDirectory: $(tfWorkingDir)
+            serviceConnection: $(serviceConnection)
+            tfStateServiceConnection: $(serviceConnection)
+            tfStateLocation: uks
+            tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
+            tfStateStorageAccountName: ## create storage ac
+            tfStateContainerName: tfstate     ## create storage ac container                
