@@ -36,7 +36,7 @@ stages:
           tfStateServiceConnection: $(serviceConnection)
           tfStateLocation: uks
           tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
-          tfStateStorageAccountName: ## create storage ac
+          tfStateStorageAccountName: smartassignstoragetf ## create storage ac
           tfStateContainerName: tfstate     ## create storage ac container 
             
 
@@ -50,5 +50,5 @@ stages:
             tfStateServiceConnection: $(serviceConnection)
             tfStateLocation: uks
             tfStateResourceGroupName: alana-barrett-frew-sandbox-rg
-            tfStateStorageAccountName: ## create storage ac
+            tfStateStorageAccountName: smartassignstoragetf ## create storage ac
             tfStateContainerName: tfstate     ## create storage ac container                
