@@ -11,7 +11,7 @@ variables:
   - name: tfWorkingDir
     value: infra
   - name: serviceConnection
-    value: UKDDC_Azure_Subscription
+    value: ukddc-v1-subscription
 
 #########################
 # Resources.
