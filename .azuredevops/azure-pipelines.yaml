@@ -45,13 +45,12 @@ stages:
         saName: smartassignstoragetf
         saContainerName: tfstate
         tfVersion: "1.8.5"
-        planFileName: "tfplan"
+        planFileName: "smart-assign-tfplan"
         statefilename: smart-assign.tfstate
 
     - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
       - template: terraform/steps/tf-apply.yml@templates
         parameters:
-          environment: dev
           rgLocation: uks
           workingDirectory: $(tfWorkingDir)
           serviceConnection: $(serviceConnection)
@@ -60,6 +59,7 @@ stages:
           saContainerName: tfstate
           tfVersion: "1.8.5"
           statefilename: smart-assign.tfstate          
+          planFileName: "smart-assign-tfplan"
 
 
       
