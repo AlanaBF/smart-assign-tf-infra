@@ -48,9 +48,9 @@ stages:
         planFileName: "smart-assign-tfplan"
         statefilename: smart-assign.tfstate
 
-    - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
-      - template: terraform/steps/tf-apply.yml@templates
-        parameters:
+
+    - template: terraform/steps/tf-apply.yml@templates
+      parameters:
           rgLocation: uks
           workingDirectory: $(tfWorkingDir)
           serviceConnection: $(serviceConnection)
