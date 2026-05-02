@@ -1,7 +1,8 @@
 location = "uksouth"
-
-project = "" ## populate project
+project  = "sa"
 
 tags = {
-  OwnerEmailAddress = "" ## populate email address
+  OwnerEmailAddress = "alana.barrettfrew@version1.com"
+  Project           = "Smart Assign"
+  Repository        = "https://dev.azure.com/version1ukdcs/Azure AI/_git/smart-assign-tf-infra"
 }

@@ -1,0 +1,22 @@
+# Terraform state files - never commit these
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform plan files
+*.tfplan
+
+# Terraform working directory
+.terraform/
+
+# Scripts with sensitive data
+import*.sh
+apply.sh
+plan.sh
+
+# Variable files that may contain secrets
+*.auto.tfvars
+secret*.tfvars
+
+# Mac files
+.DS_Store

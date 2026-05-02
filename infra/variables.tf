@@ -1,4 +1,3 @@
-
 variable "location" {
   type        = string
   description = "Resource location for Azure resources"
@@ -17,4 +16,15 @@ variable "tags" {
 variable "environment" {
   type        = string
   description = "Name of Azure environment."
+}
+
+variable "db_password" {
+  type        = string
+  description = "PostgreSQL administrator password."
+  sensitive   = true
+}
+
+variable "cors_origins" {
+  type        = string
+  description = "Allowed CORS origins for the backend API."
 }
