@@ -1,65 +1,77 @@
-#########################
-# Triggers.
-#########################
 trigger:
   - main
 
-#########################
-# Variables.
-#########################
+pool:
+  vmImage: 'ubuntu-latest'
+
 variables:
   - name: tfWorkingDir
     value: infra
   - name: serviceConnection
     value: Azure subscription
 
-#########################
-# Resources.
-#########################
-resources:
-  repositories:
-    - repository: templates
-      type: git
-      name: 'Azure Capability Deployment Tools/ado-yaml-templates'
-      ref: main    
-
-#########################
-# Terraform.
-#########################
 stages:
 - stage: TerraformPlan
   displayName: Terraform Plan
   jobs:
-  - job: RunPlan
-    displayName: Run Terraform Plan
+  - job: Plan
+    displayName: Terraform Plan
     steps:
+    - task: AzureCLI@2
+      displayName: Terraform Init and Plan
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(tfWorkingDir)
+          terraform init \
+            -backend-config="resource_group_name=alana-barrett-frew-sandbox-rg" \
+            -backend-config="storage_account_name=smartassignstoragetf" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=smart-assign.tfstate"
+          terraform plan \
+            -var-file="vars/global/global.tfvars" \
+            -var-file="vars/global/uks/dev.tfvars" \
+            -var="db_password=$(DB_PASSWORD)" \
+            -out=tfplan
+      env:
+        ARM_USE_CLI: true
 
-    # 1. Run the plan template
-    - template: terraform/steps/tf-plan.yml@templates
-      parameters:
-        environment: dev
-        rgLocation: uks
-        workingDirectory: $(tfWorkingDir)
-        serviceConnection: $(serviceConnection)
-        rgName: alana-barrett-frew-sandbox-rg
-        saName: smartassignstoragetf
-        saContainerName: tfstate
-        tfVersion: "1.8.5"
-        planFileName: "smart-assign-tfplan"
-        statefilename: smart-assign.tfstate
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Plan
+      inputs:
+        pathToPublish: '$(tfWorkingDir)/tfplan'
+        artifactName: 'tfplan'
 
+- stage: TerraformApply
+  displayName: Terraform Apply
+  dependsOn: TerraformPlan
+  condition: succeeded()
+  jobs:
+  - job: Apply
+    displayName: Terraform Apply
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'tfplan'
+        downloadPath: '$(tfWorkingDir)'
 
-    - template: terraform/steps/tf-apply.yml@templates
-      parameters:
-          rgLocation: uks
-          workingDirectory: $(tfWorkingDir)
-          serviceConnection: $(serviceConnection)
-          rgName: alana-barrett-frew-sandbox-rg
-          saName: smartassignstoragetf
-          saContainerName: tfstate
-          tfVersion: "1.8.5"
-          statefilename: smart-assign.tfstate          
-          planFileName: "smart-assign-tfplan"
-
-
-      
+    - task: AzureCLI@2
+      displayName: Terraform Apply
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(tfWorkingDir)
+          terraform init \
+            -backend-config="resource_group_name=alana-barrett-frew-sandbox-rg" \
+            -backend-config="storage_account_name=smartassignstoragetf" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=smart-assign.tfstate"
+          terraform apply -auto-approve tfplan/tfplan
+      env:
+        ARM_USE_CLI: true
