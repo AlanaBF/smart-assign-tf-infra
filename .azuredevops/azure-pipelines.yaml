@@ -30,7 +30,13 @@ stages:
         azureSubscription: $(serviceConnection)
         scriptType: bash
         scriptLocation: inlineScript
+        addSpnToEnvironment: true
         inlineScript: |
+          export ARM_CLIENT_ID=$servicePrincipalId
+          export ARM_OIDC_TOKEN=$idToken
+          export ARM_TENANT_ID=$tenantId
+          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          export ARM_USE_OIDC=true
           cd $(tfWorkingDir)
           terraform init \
             -backend-config="resource_group_name=alana-barrett-frew-sandbox-rg" \
@@ -42,8 +48,6 @@ stages:
             -var-file="vars/global/uks/dev.tfvars" \
             -var="db_password=$(DB_PASSWORD)" \
             -out=tfplan
-      env:
-        ARM_USE_CLI: true
 
     - task: PublishBuildArtifacts@1
       displayName: Publish Plan
@@ -69,21 +73,25 @@ stages:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'tfplan'
-        downloadPath: '$(tfWorkingDir)'
+        downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: AzureCLI@2
-      displayName: Terraform Apply
+      displayName: Terraform Init and Apply
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: bash
         scriptLocation: inlineScript
+        addSpnToEnvironment: true
         inlineScript: |
+          export ARM_CLIENT_ID=$servicePrincipalId
+          export ARM_OIDC_TOKEN=$idToken
+          export ARM_TENANT_ID=$tenantId
+          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          export ARM_USE_OIDC=true
           cd $(tfWorkingDir)
           terraform init \
             -backend-config="resource_group_name=alana-barrett-frew-sandbox-rg" \
             -backend-config="storage_account_name=smartassignstoragetf" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=smart-assign.tfstate"
-          terraform apply -auto-approve tfplan/tfplan
-      env:
-        ARM_USE_CLI: true
+          terraform apply -auto-approve $(System.ArtifactsDirectory)/tfplan/tfplan
