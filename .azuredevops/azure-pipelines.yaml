@@ -19,7 +19,7 @@ stages:
   - job: Plan
     displayName: Terraform Plan
     steps:
-    - task: TerraformInstaller@1
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
       displayName: Install Terraform
       inputs:
         terraformVersion: $(tfVersion)
@@ -59,7 +59,7 @@ stages:
   - job: Apply
     displayName: Terraform Apply
     steps:
-    - task: TerraformInstaller@1
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
       displayName: Install Terraform
       inputs:
         terraformVersion: $(tfVersion)
