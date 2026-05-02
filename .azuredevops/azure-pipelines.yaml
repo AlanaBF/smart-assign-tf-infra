@@ -9,6 +9,8 @@ variables:
     value: infra
   - name: serviceConnection
     value: Azure subscription
+  - name: tfVersion
+    value: '1.8.5'
 
 stages:
 - stage: TerraformPlan
@@ -17,6 +19,11 @@ stages:
   - job: Plan
     displayName: Terraform Plan
     steps:
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: $(tfVersion)
+
     - task: AzureCLI@2
       displayName: Terraform Init and Plan
       inputs:
@@ -52,6 +59,11 @@ stages:
   - job: Apply
     displayName: Terraform Apply
     steps:
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: $(tfVersion)
+
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
