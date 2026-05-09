@@ -11,21 +11,3 @@ resource "azurerm_key_vault" "smart_assign" {
   enable_rbac_authorization  = true
   tags                       = local.tags
 }
-
-resource "azurerm_key_vault_secret" "db_host" {
-  name         = "db-host"
-  value        = azurerm_postgresql_flexible_server.smart_assign.fqdn
-  key_vault_id = azurerm_key_vault.smart_assign.id
-}
-
-resource "azurerm_key_vault_secret" "db_user" {
-  name         = "db-user"
-  value        = var.db_user
-  key_vault_id = azurerm_key_vault.smart_assign.id
-}
-
-resource "azurerm_key_vault_secret" "db_password" {
-  name         = "db-password"
-  value        = var.db_password
-  key_vault_id = azurerm_key_vault.smart_assign.id
-}

@@ -15,30 +15,35 @@ resource "azurerm_container_app" "smart_assign" {
   tags                         = local.tags
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.smart_assign.id]
+    type = "SystemAssigned"
   }
 
   registry {
-    server   = azurerm_container_registry.smart_assign.login_server
-    identity = azurerm_user_assigned_identity.smart_assign.id
+    server               = azurerm_container_registry.smart_assign.login_server
+    username             = azurerm_container_registry.smart_assign.admin_username
+    password_secret_name = "registry-password"
+  }
+
+  secret {
+    name  = "registry-password"
+    value = azurerm_container_registry.smart_assign.admin_password
   }
 
   secret {
     name                = "db-host"
-    identity            = azurerm_user_assigned_identity.smart_assign.id
+    identity            = "System"
     key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-host"
   }
 
   secret {
     name                = "db-user"
-    identity            = azurerm_user_assigned_identity.smart_assign.id
+    identity            = "System"
     key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-user"
   }
 
   secret {
     name                = "db-password"
-    identity            = azurerm_user_assigned_identity.smart_assign.id
+    identity            = "System"
     key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-password"
   }
 
