@@ -30,6 +30,21 @@ resource "azurerm_subnet" "public" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+resource "azurerm_subnet" "etl" {
+  name                 = "etl-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.smart_assign.name
+  address_prefixes     = ["10.0.4.0/24"]
+
+  delegation {
+    name = "container-instance-delegation"
+    service_delegation {
+      name    = "Microsoft.ContainerInstance/containerGroups"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
 resource "azurerm_subnet" "private" {
   name                 = "private-subnet"
   resource_group_name  = data.azurerm_resource_group.rg.name
