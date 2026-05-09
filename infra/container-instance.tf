@@ -32,5 +32,10 @@ resource "azurerm_container_group" "etl" {
     secure_environment_variables = {
       PGPASSWORD = var.db_password
     }
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
   }
 }
