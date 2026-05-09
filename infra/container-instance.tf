@@ -4,6 +4,7 @@ resource "azurerm_container_group" "etl" {
   location            = var.location
   os_type             = "Linux"
   restart_policy      = "Never"
+  ip_address_type     = "Private"
   tags                = local.tags
 
   subnet_ids = [azurerm_subnet.etl.id]
