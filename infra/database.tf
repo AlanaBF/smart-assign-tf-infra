@@ -3,7 +3,7 @@ resource "azurerm_postgresql_flexible_server" "smart_assign" {
   resource_group_name           = data.azurerm_resource_group.rg.name
   location                      = var.location
   version                       = "17"
-  administrator_login           = "alanabarrettfrew"
+  administrator_login           = var.db_user
   administrator_password        = var.db_password
   zone                          = "1"
   storage_mb                    = 32768

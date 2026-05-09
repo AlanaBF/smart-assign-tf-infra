@@ -18,6 +18,12 @@ variable "environment" {
   description = "Name of Azure environment."
 }
 
+variable "db_user" {
+  type        = string
+  description = "PostgreSQL administrator username."
+  default     = "alanabarrettfrew"
+}
+
 variable "db_password" {
   type        = string
   description = "PostgreSQL administrator password."
