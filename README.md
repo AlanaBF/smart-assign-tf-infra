@@ -63,6 +63,17 @@ smart-assign-tf-infra/
 - Azure CLI (`az login` for local use)
 - Access to the target Azure subscription and resource group
 
+## First-Time Setup (Bootstrap)
+
+The Terraform state backend storage account must exist before `terraform init` can run. A bootstrap script handles this:
+
+```bash
+chmod +x bootstrap.sh
+./bootstrap.sh
+```
+
+This creates the storage account, the `tfstate` container, and runs `terraform init`. Only needed once per fresh environment.
+
 ## Network Architecture
 
 ```
@@ -81,42 +92,61 @@ The PostgreSQL database has **public access disabled**. It is only reachable via
    az login
    ```
 
-2. **Initialise Terraform:**
+2. **Bootstrap (first time only):**
    ```bash
-   cd infra
-   terraform init \
-     -backend-config="resource_group_name=<YOUR_RESOURCE_GROUP>" \
-     -backend-config="storage_account_name=<YOUR_STORAGE_ACCOUNT>" \
-     -backend-config="container_name=tfstate" \
-     -backend-config="key=smart-assign.tfstate"
+   chmod +x bootstrap.sh
+   ./bootstrap.sh
    ```
 
 3. **Plan:**
    ```bash
-   terraform plan \
-     -var-file="vars/global/global.tfvars" \
-     -var-file="vars/global/uks/dev.tfvars" \
-     -var="db_password=YOUR_PASSWORD"
+   ./infra/plan.sh
+   # or: ./infra/plan.sh MY_PASSWORD
    ```
 
 4. **Apply:**
    ```bash
-   terraform apply \
-     -var-file="vars/global/global.tfvars" \
-     -var-file="vars/global/uks/dev.tfvars" \
-     -var="db_password=YOUR_PASSWORD"
+   ./infra/apply.sh
+   # or: ./infra/apply.sh MY_PASSWORD
    ```
+
+## Destroy and Rebuild
+
+**To destroy:**
+```bash
+cd infra
+terraform destroy \
+  -var-file="vars/global/global.tfvars" \
+  -var-file="vars/global/uks/dev.tfvars" \
+  -var="db_password=YOUR_PASSWORD"
+```
+
+**Before rebuilding — purge the Key Vault:**
+
+Azure soft-deletes Key Vaults for 90 days. The name `smart-assign-kv` stays reserved until purged:
+```bash
+az keyvault purge --name smart-assign-kv --location uksouth
+```
+
+**Then rebuild:**
+```bash
+./bootstrap.sh
+./infra/apply.sh
+```
+
+After apply completes, run the backend and ETL Azure DevOps pipelines to push Docker images to the freshly created ACR. The Static Web App will have a new hostname — update the frontend pipeline's deployment token from the Azure portal.
 
 ## Input Variables
 
 | Variable | Type | Description |
 |----------|------|-------------|
-| `location` | string | Azure region (e.g., `uksouth`) |
-| `project` | string | Project short name (e.g., `sa`) |
-| `environment` | string | Environment name (e.g., `dev`) |
-| `tags` | map(string) | Resource tags |
-| `db_password` | string (sensitive) | PostgreSQL admin password |
-| `cors_origins` | string | Allowed CORS origins for the backend |
+| `location` | string | Azure region — set in `global.tfvars` |
+| `project` | string | Project short name — set in `global.tfvars` |
+| `environment` | string | Environment name — set in `dev.tfvars` |
+| `tags` | map(string) | Resource tags — set in `global.tfvars` |
+| `db_password` | string (sensitive) | **Only required input at apply time** |
+
+CORS origins are derived automatically from the Static Web App hostname. Key Vault secrets (`db-host`, `db-user`, `db-password`) are written by Terraform — no manual portal steps required.
 
 ## CI/CD Pipeline
 

@@ -32,19 +32,19 @@ resource "azurerm_container_app" "smart_assign" {
   secret {
     name                = "db-host"
     identity            = "System"
-    key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-host"
+    key_vault_secret_id = azurerm_key_vault_secret.db_host.versionless_id
   }
 
   secret {
     name                = "db-user"
     identity            = "System"
-    key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-user"
+    key_vault_secret_id = azurerm_key_vault_secret.db_user.versionless_id
   }
 
   secret {
     name                = "db-password"
     identity            = "System"
-    key_vault_secret_id = "${azurerm_key_vault.smart_assign.vault_uri}secrets/db-password"
+    key_vault_secret_id = azurerm_key_vault_secret.db_password.versionless_id
   }
 
   ingress {
@@ -94,7 +94,7 @@ resource "azurerm_container_app" "smart_assign" {
       }
       env {
         name  = "CORS_ORIGINS"
-        value = var.cors_origins
+        value = "https://${azurerm_static_web_app.smart_assign.default_host_name}"
       }
     }
   }

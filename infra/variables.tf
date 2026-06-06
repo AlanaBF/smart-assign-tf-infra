@@ -29,8 +29,3 @@ variable "db_password" {
   description = "PostgreSQL administrator password."
   sensitive   = true
 }
-
-variable "cors_origins" {
-  type        = string
-  description = "Allowed CORS origins for the backend API."
-}
