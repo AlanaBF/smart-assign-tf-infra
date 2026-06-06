@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "smart_assign" {
-  name                = "smart-assign-vnet"
+  name                = "smart-assign-vnet2"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = var.location
   address_space       = ["10.0.0.0/16"]
